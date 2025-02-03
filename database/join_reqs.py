@@ -1,13 +1,13 @@
 import motor.motor_asyncio
-from info import AUTH_CHANNEL, OTHER_DB_URI
+from info import DATABASE_URL
 
 class JoinReqs:
 
     def __init__(self):
-        if OTHER_DB_URI:
-            self.client = motor.motor_asyncio.AsyncIOMotorClient(OTHER_DB_URI)
+        if DATABASE_URL:
+            self.client = motor.motor_asyncio.AsyncIOMotorClient(DATABASE_URL)
             self.db = self.client["JoinReqs"]
-            self.col = self.db[str(AUTH_CHANNEL)]
+            self.col = self.db["channel"]
         else:
             self.client = None
             self.db = None
@@ -19,14 +19,15 @@ class JoinReqs:
         else:
             return False
 
-    async def add_user(self, user_id, first_name, username, date):
+    async def add_user(self, user_id, chat_id):
         try:
-            await self.col.insert_one({"_id": int(user_id),"user_id": int(user_id), "first_name": first_name, "username": username, "date": date})
+            await self.col.insert_one({"user_id": int(user_id), "chat_id": int(chat_id)})
         except:
             pass
 
     async def get_user(self, user_id):
-        return await self.col.find_one({"user_id": int(user_id)})
+        channels = await self.col.find_one({"user_id": int(user_id)})
+        return [for channel in channels]
 
     async def get_all_users(self):
         return await self.col.find().to_list(None)
