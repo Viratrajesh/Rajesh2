@@ -8,11 +8,19 @@ import requests
 from Script import script
 from pyrogram import Client, filters, enums
 from pyrogram.errors import ChatAdminRequired, FloodWait, ButtonDataInvalid
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ChatJoinRequest
 from database.ia_filterdb import Media, get_file_details, unpack_new_file_id, delete_files
 from database.users_chats_db import db
-from info import STICKERS_IDS, SUPPORT_GROUP, INDEX_CHANNELS, ADMINS, IS_VERIFY, VERIFY_TUTORIAL, VERIFY_EXPIRE, TUTORIAL, SHORTLINK_API, SHORTLINK_URL, AUTH_CHANNEL, DELETE_TIME, SUPPORT_LINK, UPDATES_LINK, LOG_CHANNEL, PICS, PROTECT_CONTENT, IS_STREAM, IS_FSUB, PAYMENT_QR
+from info import STICKERS_IDS, REQUEST_TO_JOIN_MODE, SUPPORT_GROUP, INDEX_CHANNELS, ADMINS, IS_VERIFY, VERIFY_TUTORIAL, VERIFY_EXPIRE, TUTORIAL, SHORTLINK_API, SHORTLINK_URL, AUTH_CHANNEL, DELETE_TIME, SUPPORT_LINK, UPDATES_LINK, LOG_CHANNEL, PICS, PROTECT_CONTENT, IS_STREAM, IS_FSUB, PAYMENT_QR
 from utils import get_settings, delayed_delete, get_size, is_subscribed, is_check_admin, get_shortlink, get_verify_status, update_verify_status, save_group_settings, temp, get_readable_time, get_wish, get_seconds
+from database.join_reqs import JoinReqs
+
+join_db = JoinReqs
+
+@Client.on_chat_join_request((filters.group | filters.channel))
+async def auto_approve(client, message: ChatJoinRequest):
+    if REQUEST_TO_JOIN_MODE:
+        await join_db().add_user(user_id=message.from_user.id, chat_id=message.chat.id)
 
 @Client.on_message(filters.command("ask") & filters.incoming) #add your support grp to use this
 async def aiRes(_, message):
