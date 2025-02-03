@@ -25,9 +25,9 @@ class JoinReqs:
         except:
             pass
 
-    async def get_user(self, user_id):
-        channels = await self.col.find_one({"user_id": int(user_id)})
-        return channels
+    async def get_user(self, user_id, id):
+        channels = await self.col.find_one({"user_id": int(user_id), "chat_id": int(id)})
+        return bool(channels)
 
     async def get_all_users(self):
         return await self.col.find().to_list(None)
