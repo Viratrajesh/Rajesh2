@@ -27,7 +27,7 @@ class JoinReqs:
 
     async def get_user(self, user_id):
         channels = await self.col.find_one({"user_id": int(user_id)})
-        return [for channel in channels]
+        return channels
 
     async def get_all_users(self):
         return await self.col.find().to_list(None)
